@@ -1,1 +1,0 @@
-請加入 jsPsych 套件檔案，如 jspsych.js, jspsych.css, plugin-html-button-response.js
