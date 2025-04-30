@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>DASS-21 Stress Feedback</title>
+  <script src="jspsych/jspsych.js"></script>
+  <script src="jspsych/plugin-html-button-response.js"></script>
+  <link href="jspsych/jspsych.css" rel="stylesheet">
+  <style>
+    body { font-family: sans-serif; margin: 40px; transition: background-color 0.5s; }
+  </style>
+</head>
+<body></body>
+<script>
+  const jsPsych = initJsPsych();
+
+  const stressItems = [
+    "我覺得難以放鬆。",
+    "處理瑣事時我會變得急躁。",
+    "我覺得無法應付生活中所有事情。",
+    "我感到焦躁不安。",
+    "我發現自己很容易因小事煩躁。",
+    "我感到緊張。",
+    "我覺得自己太容易被激怒。"
+  ];
+
+  const timeline = [];
+
+  timeline.push({
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "<h2>這是一份 DASS-21 壓力量表</h2><p>請根據過去一週的感受作答。</p>",
+    choices: ["開始"]
+  });
+
+  const responses = [];
+
+  for (let i = 0; i < stressItems.length; i++) {
+    timeline.push({
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "<p>" + stressItems[i] + "</p><p>0=完全不符合，3=非常符合</p>",
+      choices: ["0", "1", "2", "3"],
+      on_finish: function(data){
+        responses.push(Number(data.response));
+      }
+    });
+  }
+
+  timeline.push({
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function() {
+      const total = responses.reduce((a, b) => a + b, 0) * 2;
+      let bg = "", msg = "", level = "";
+
+      if (total <= 14) {
+        bg = "#ccffe5"; level = "正常";
+        msg = "你目前壓力狀況良好，請持續保持健康的生活節奏。";
+      } else if (total <= 18) {
+        bg = "#fffacd"; level = "輕度";
+        msg = "你的壓力略偏高，建議留意生活步調，適度放鬆。";
+      } else if (total <= 25) {
+        bg = "#ffefb8"; level = "中度";
+        msg = "有中度壓力徵象，適合安排休息，減輕負荷。";
+      } else if (total <= 33) {
+        bg = "#ffccaa"; level = "嚴重";
+        msg = "壓力明顯偏高，請積極調整生活或尋求支持。";
+      } else {
+        bg = "#ffccdd"; level = "極嚴重";
+        msg = "壓力極高，建議儘快尋求心理健康專業協助。";
+      }
+
+      document.body.style.backgroundColor = bg;
+      return "<h2>壓力程度：" + level + "</h2><p>" + msg + "</p><p>總分：" + total + "</p>";
+    },
+    choices: ["完成"]
+  });
+
+  jsPsych.run(timeline);
+</script>
+</html>
